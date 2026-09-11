@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Portal | Campus Connect</title>
+<style>
+    :root {
+        --navy: #0A2240;
+        --gold: #F2A900;
+        --bg: #f4f6f9;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background-color: var(--bg);
+        min-height: 100vh;
+        padding: 30px 15px;
+    }
+
+    .portal-wrapper {
+        max-width: 850px;
+        margin: 0 auto;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
+
+    .portal-header {
+        background-color: var(--navy);
+        padding: 18px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .portal-header h1 {
+        color: var(--gold);
+        font-size: 22px;
+        letter-spacing: 0.5px;
+    }
+
+    .portal-header p {
+        color: #ffffff;
+        font-size: 13px;
+        opacity: 0.85;
+        margin-top: 4px;
+    }
+
+    .back-btn {
+        background-color: var(--gold);
+        color: var(--navy);
+        border: none;
+        border-radius: 4px;
+        padding: 10px 16px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .back-btn:hover {
+        opacity: 0.9;
+    }
+
+    .tab-row {
+        display: flex;
+        background-color: #e9edf2;
+        overflow-x: auto;
+    }
+
+    .tab-btn {
+        flex: 1;
+        min-width: 140px;
+        padding: 14px 10px;
+        border: none;
+        background-color: transparent;
+        color: #334155;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+    }
+
+    .tab-btn.active {
+        background-color: #ffffff;
+        color: var(--navy);
+        border-bottom: 3px solid var(--gold);
+    }
+
+    .tab-content {
+        background-color: #ffffff;
+        padding: 24px;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .section-title {
+        color: var(--navy);
+        font-size: 17px;
+        margin-bottom: 18px;
+    }
+
+    .item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid #eef1f5;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .item-row:last-child {
+        border-bottom: none;
+    }
+
+    .item-title {
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 14.5px;
+    }
+
+    .item-meta {
+        font-size: 12.5px;
+        color: #64748b;
+        margin-top: 4px;
+    }
+
+    .dark-btn {
+        background-color: var(--navy);
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        padding: 9px 16px;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .badge {
+        padding: 7px 14px;
+        border-radius: 4px;
+        font-size: 12.5px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .badge.pending {
+        background-color: var(--gold);
+        color: var(--navy);
+    }
+
+    .badge.submitted {
+        background-color: #2e7d32;
+        color: #ffffff;
+    }
+
+    .attendance-row {
+        padding: 14px 0;
+        border-bottom: 1px solid #eef1f5;
+    }
+
+    .attendance-row:last-child {
+        border-bottom: none;
+    }
+
+    .attendance-head {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .attendance-pct {
+        font-weight: 700;
+    }
+
+    .attendance-pct.low {
+        color: #c0392b;
+    }
+
+    .attendance-pct.good {
+        color: #2e7d32;
+    }
+
+    .progress-track {
+        height: 8px;
+        border-radius: 4px;
+        background-color: #e2e8f0;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        background-color: #2e7d32;
+    }
+
+    .progress-fill.low {
+        background-color: #c0392b;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+    }
+
+    .profile-field {
+        background-color: var(--bg);
+        border-radius: 6px;
+        padding: 14px 16px;
+        border-left: 4px solid var(--gold);
+    }
+
+    .profile-label {
+        font-size: 11.5px;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 4px;
+    }
+
+    .profile-value {
+        font-size: 14px;
+        color: var(--navy);
+        font-weight: 600;
+    }
+</style>
+</head>
+<body>
+
+<div class="portal-wrapper">
+
+    <div class="portal-header">
+        <div>
+            <h1>🎓 Student Portal</h1>
+            <p id="welcomeText">Welcome, RVU Student</p>
+        </div>
+        <button class="back-btn" onclick="window.location.href='index.html'">
+            Back to Main Campus View
+        </button>
+    </div>
+
+    <div class="tab-row">
+        <button class="tab-btn active" data-tab="notices">Notices & Events</button>
+        <button class="tab-btn" data-tab="assignments">Assignments</button>
+        <button class="tab-btn" data-tab="attendance">Track Attendance</button>
+        <button class="tab-btn" data-tab="profile">Profile</button>
+    </div>
+
+    <div class="tab-content">
+
+        <!-- Notices & Events -->
+        <div class="tab-pane active" id="notices">
+            <h2 class="section-title">📣 Campus Notices & Events</h2>
+
+            <div class="item-row">
+                <div>
+                    <div class="item-title">Mid-Term Exam Schedule Released</div>
+                    <div class="item-meta">SOCSE &nbsp;•&nbsp; Sept 18, 2026</div>
+                </div>
+                <button class="dark-btn">View Details</button>
+            </div>
+
+            <div class="item-row">
+                <div>
+                    <div class="item-title">Hackathon Registration Open</div>
+                    <div class="item-meta">RVU Tech Club &nbsp;•&nbsp; Sept 15, 2026</div>
+                </div>
+                <button class="dark-btn">View Details</button>
+            </div>
+        </div>
+
+        <!-- Assignments -->
+        <div class="tab-pane" id="assignments">
+            <h2 class="section-title">📄 Assignments & Submissions</h2>
+
+            <div class="item-row">
+                <div>
+                    <div class="item-title">Lab Assignment 2: React State Management</div>
+                    <div class="item-meta">CS3301 - Full Stack &nbsp;•&nbsp; Due Sept 12, 2026</div>
+                </div>
+                <span class="badge pending">Pending</span>
+            </div>
+
+            <div class="item-row">
+                <div>
+                    <div class="item-title">ER Diagram Project Report</div>
+                    <div class="item-meta">CS3302 - DBMS &nbsp;•&nbsp; Due Sept 20, 2026</div>
+                </div>
+                <span class="badge submitted">Submitted</span>
+            </div>
+        </div>
+
+        <!-- Track Attendance -->
+        <div class="tab-pane" id="attendance">
+            <h2 class="section-title">📊 Track Attendance</h2>
+
+            <div class="attendance-row">
+                <div class="attendance-head">
+                    <span class="item-title">CS3301 - Full Stack Development</span>
+                    <span class="attendance-pct good">90%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: 90%;"></div>
+                </div>
+                <div class="item-meta">27 / 30 classes attended</div>
+            </div>
+
+            <div class="attendance-row">
+                <div class="attendance-head">
+                    <span class="item-title">CS3302 - Database Management Systems</span>
+                    <span class="attendance-pct good">80%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: 80%;"></div>
+                </div>
+                <div class="item-meta">24 / 30 classes attended</div>
+            </div>
+
+            <div class="attendance-row">
+                <div class="attendance-head">
+                    <span class="item-title">CS3305 - Computer Networks</span>
+                    <span class="attendance-pct low">75%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill low" style="width: 75%;"></div>
+                </div>
+                <div class="item-meta">21 / 28 classes attended</div>
+            </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="tab-pane" id="profile">
+            <h2 class="section-title">👤 Student Profile</h2>
+
+            <div class="profile-grid">
+                <div class="profile-field">
+                    <div class="profile-label">Name</div>
+                    <div class="profile-value" id="profileName">RVU Student</div>
+                </div>
+                <div class="profile-field">
+                    <div class="profile-label">Department</div>
+                    <div class="profile-value">School of Computer Science & Engineering (SOCSE)</div>
+                </div>
+                <div class="profile-field">
+                    <div class="profile-label">Course</div>
+                    <div class="profile-value">CS3301 - Full Stack Development</div>
+                </div>
+                <div class="profile-field">
+                    <div class="profile-label">Status</div>
+                    <div class="profile-value">Active Enrolled</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Tab switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach((b) => b.classList.remove('active'));
+            tabPanes.forEach((p) => p.classList.remove('active'));
+
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    // Show the logged-in user's name if login.html saved one
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            const displayName = user.name || (user.email ? user.email.split('@')[0] : 'RVU Student');
+            document.getElementById('welcomeText').innerText = `Welcome, ${displayName}`;
+            document.getElementById('profileName').innerText = displayName;
+        } catch (e) {
+            // ignore malformed storage
+        }
+    }
+</script>
+
+</body>
+</html>
