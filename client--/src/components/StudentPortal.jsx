@@ -1,348 +1,406 @@
-import React from 'react';
+/* ============================================================================= */
+/* [EXPERIMENT 4 & 5: START] Modular Frontend Application & State Architecture   */
+/* ----------------------------------------------------------------------------- */
+/* [EXPERIMENT 4] In-Memory State Handling: Central state array, add, edit,     */
+/*               toggle status, remove item, live derived summary metrics.       */
+/* [EXPERIMENT 5] Component-Based Architecture: Decomposed into reusable child   */
+/*               components communicating via props and event handlers:          */
+/*               - StatBadge.jsx (reusable metrics pill)                         */
+/*               - AssignmentForm.jsx (modular form with local controlled state) */
+/*               - AssignmentCard.jsx (modular item card with action callbacks)  */
+/*               - NoticeCard.jsx (reusable notice card with props)              */
+/*               - AttendanceCard.jsx (reusable attendance card with props)      */
+/* ============================================================================= */
 
-const NAVY = '#0A2240';
-const GOLD = '#F2A900';
-const BG = '#f4f6f9';
+import React, { useState, useEffect } from "react";
+import "../style.css";
+import StatBadge from "./StatBadge.jsx";
+import AssignmentForm from "./AssignmentForm.jsx";
+import AssignmentCard from "./AssignmentCard.jsx";
+import NoticeCard from "./NoticeCard.jsx";
+import AttendanceCard from "./AttendanceCard.jsx";
+import assignmentService from "../services/assignmentService.js";
 
-const NOTICES = [
-  {
-    title: 'Mid-Term Exam Schedule Released',
-    meta: 'SOCSE  •  Sept 18, 2026'
-  },
-  {
-    title: 'Hackathon Registration Open',
-    meta: 'RVU Tech Club  •  Sept 15, 2026'
-  }
-];
+export default function StudentPortal({ onBackToHome }) {
+  // =============================================================================
+  // [EXPERIMENT 4: START] In-Memory State Declarations & State Mutation Handlers
+  // -----------------------------------------------------------------------------
+  // Step 5: Central application state declared using React useState hook.
+  // =============================================================================
+  const [activeTab, setActiveTab] = useState("assignments");
 
-const ASSIGNMENTS = [
-  {
-    title: 'Lab Assignment 2: React State Management',
-    meta: 'CS3301 - Full Stack  •  Due Sept 12, 2026',
-    status: 'Pending'
-  },
-  {
-    title: 'ER Diagram Project Report',
-    meta: 'CS3302 - DBMS  •  Due Sept 20, 2026',
-    status: 'Submitted'
-  }
-];
+  // State 1: Central State Array for Assignments
+  const [assignmentsList, setAssignmentsList] = useState([
+    {
+      id: 1,
+      title: "Lab Assignment 2: React State Management",
+      subject: "CS3301 - Full Stack",
+      due: "Sept 12, 2026",
+      status: "Pending",
+    },
+    {
+      id: 2,
+      title: "ER Diagram Project Report",
+      subject: "CS3302 - DBMS",
+      due: "Sept 01, 2026",
+      status: "Submitted",
+    },
+    {
+      id: 3,
+      title: "Computer Networks Socket Programming Lab",
+      subject: "CS3303 - Networks",
+      due: "Sept 25, 2026",
+      status: "Pending",
+    },
+  ]);
 
-const ATTENDANCE = [
-  { course: 'CS3301 - Full Stack Development', attended: 27, total: 30 },
-  { course: 'CS3302 - Database Management Systems', attended: 24, total: 30 },
-  { course: 'CS3305 - Computer Networks', attended: 21, total: 28 }
-];
+  // State 2: Filter State ('all' | 'Pending' | 'Submitted')
+  const [filter, setFilter] = useState("all");
 
-const PROFILE = {
-  name: 'RVU Student',
-  department: 'School of Computer Science & Engineering (SOCSE)',
-  course: 'CS3301 - Full Stack Development',
-  status: 'Active Enrolled'
-};
+  // Sample static Notices data passed to reusable child NoticeCard components
+  const notices = [
+    {
+      id: 1,
+      title: "Mid-Term Exam Schedule Released",
+      department: "SOCE",
+      date: "Sept 10, 2026",
+    },
+    {
+      id: 2,
+      title: "Hackathon Registration Open",
+      department: "RVU Tech Club",
+      date: "Sept 15, 2026",
+    },
+  ];
 
-const TABS = [
-  { id: 'notices', label: 'Notices & Events' },
-  { id: 'assignments', label: 'Assignments' },
-  { id: 'attendance', label: 'Track Attendance' },
-  { id: 'profile', label: 'Profile' }
-];
+  // Sample static Attendance data passed to reusable child AttendanceCard components
+  const attendance = [
+    {
+      id: 1,
+      subject: "CS3301 - Full Stack",
+      percentage: "88%",
+    },
+    {
+      id: 2,
+      subject: "CS3302 - DBMS",
+      percentage: "92%",
+    },
+  ];
 
-export default function StudentPortal({ studentName = 'RVU Student', onBack }) {
-  const [activeTab, setActiveTab] = React.useState('notices');
+  // [EXPERIMENT 6: START] Consuming Backend RESTful Services (Node.js & Express)
+  // Aim: Consume backend API endpoints (GET, POST, PATCH, DELETE) to sync React
+  // state with Express server running at http://localhost:5000/api/assignments
+  const [apiStatus, setApiStatus] = useState("connecting"); // 'connected' | 'offline'
 
-  return (
-    <div style={styles.wrapper}>
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.headerTitle}>🎓 Student Portal</h1>
-          <p style={styles.headerSubtitle}>Welcome, {studentName}</p>
-        </div>
+  // Fetch all assignments from Node/Express backend service on mount (READ - GET)
+  useEffect(() => {
+    const fetchAssignmentsFromAPI = async () => {
+      try {
+        const response = await assignmentService.getAll();
+        if (response && response.data) {
+          setAssignmentsList(response.data);
+          setApiStatus("connected");
+        }
+      } catch (err) {
+        console.warn("[EXP 6] Backend service offline, using initial state:", err.message);
+        setApiStatus("offline");
+      }
+    };
 
-        <button style={styles.backBtn} onClick={onBack}>
-          Back to Main Campus View
-        </button>
-      </div>
+    fetchAssignmentsFromAPI();
+  }, []);
 
-      <div style={styles.tabRow}>
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              ...styles.tabBtn,
-              ...(activeTab === tab.id ? styles.tabBtnActive : {})
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+  // --- EXPERIMENT 4 & 6: STATE MUTATION & API CONSUMPTION ROUTINES ---
 
-      <div style={styles.content}>
-        {activeTab === 'notices' && <NoticesTab />}
-        {activeTab === 'assignments' && <AssignmentsTab />}
-        {activeTab === 'attendance' && <AttendanceTab />}
-        {activeTab === 'profile' && <ProfileTab />}
-      </div>
-    </div>
-  );
-}
+  // Step 6: Create New Item (POST /api/assignments) & Update State
+  const handleAddAssignment = async (newAssignmentData) => {
+    const tempId = Date.now();
+    const tempAssignment = {
+      id: tempId,
+      ...newAssignmentData,
+      status: "Pending",
+    };
 
-function NoticesTab() {
-  return (
-    <div>
-      <h2 style={styles.sectionTitle}>📣 Campus Notices & Events</h2>
+    // Optimistic UI state update
+    setAssignmentsList((prevList) => [tempAssignment, ...prevList]);
 
-      {NOTICES.map((item, i) => (
-        <div key={i} style={styles.row}>
-          <div>
-            <div style={styles.rowTitle}>{item.title}</div>
-            <div style={styles.rowMeta}>{item.meta}</div>
-          </div>
-          <button style={styles.darkBtn}>View Details</button>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AssignmentsTab() {
-  return (
-    <div>
-      <h2 style={styles.sectionTitle}>📄 Assignments & Submissions</h2>
-
-      {ASSIGNMENTS.map((item, i) => (
-        <div key={i} style={styles.row}>
-          <div>
-            <div style={styles.rowTitle}>{item.title}</div>
-            <div style={styles.rowMeta}>{item.meta}</div>
-          </div>
-          <span
-            style={{
-              ...styles.badge,
-              backgroundColor: item.status === 'Pending' ? '#F2A900' : '#2e7d32',
-              color: item.status === 'Pending' ? NAVY : '#ffffff'
-            }}
-          >
-            {item.status}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AttendanceTab() {
-  return (
-    <div>
-      <h2 style={styles.sectionTitle}>📊 Track Attendance</h2>
-
-      {ATTENDANCE.map((item, i) => {
-        const pct = Math.round((item.attended / item.total) * 100);
-        const low = pct < 75;
-
-        return (
-          <div key={i} style={styles.attendanceRow}>
-            <div style={styles.attendanceHead}>
-              <span style={styles.rowTitle}>{item.course}</span>
-              <span style={{ fontWeight: 700, color: low ? '#c0392b' : '#2e7d32' }}>
-                {pct}%
-              </span>
-            </div>
-
-            <div style={styles.progressTrack}>
-              <div
-                style={{
-                  ...styles.progressFill,
-                  width: `${pct}%`,
-                  backgroundColor: low ? '#c0392b' : '#2e7d32'
-                }}
-              />
-            </div>
-
-            <div style={styles.rowMeta}>
-              {item.attended} / {item.total} classes attended
-            </div>
-          </div>
+    try {
+      // Consume Backend POST Endpoint
+      const response = await assignmentService.create(newAssignmentData);
+      if (response && response.data) {
+        setAssignmentsList((prevList) =>
+          prevList.map((item) => (item.id === tempId ? response.data : item))
         );
-      })}
-    </div>
-  );
-}
+        setApiStatus("connected");
+      }
+    } catch (err) {
+      console.warn("[EXP 6] Backend POST failed, maintained in local state:", err.message);
+      setApiStatus("offline");
+    }
+  };
 
-function ProfileTab() {
+  // Step 8: Edit/Toggle Item State (PATCH /api/assignments/:id) & Update State
+  const handleToggleStatus = async (id) => {
+    const targetItem = assignmentsList.find((item) => item.id === id);
+    if (!targetItem) return;
+
+    const updatedStatus = targetItem.status === "Submitted" ? "Pending" : "Submitted";
+
+    // Optimistic UI update
+    setAssignmentsList((prevList) =>
+      prevList.map((item) =>
+        item.id === id ? { ...item, status: updatedStatus } : item
+      )
+    );
+
+    try {
+      // Consume Backend PATCH Endpoint
+      await assignmentService.update(id, { status: updatedStatus });
+      setApiStatus("connected");
+    } catch (err) {
+      console.warn("[EXP 6] Backend PATCH failed, maintained in local state:", err.message);
+      setApiStatus("offline");
+    }
+  };
+
+  // Step 8: Remove Item from State (DELETE /api/assignments/:id) & Update State
+  const handleDeleteAssignment = async (id) => {
+    // Optimistic UI update
+    setAssignmentsList((prevList) => prevList.filter((item) => item.id !== id));
+
+    try {
+      // Consume Backend DELETE Endpoint
+      await assignmentService.remove(id);
+      setApiStatus("connected");
+    } catch (err) {
+      console.warn("[EXP 6] Backend DELETE failed, maintained in local state:", err.message);
+      setApiStatus("offline");
+    }
+  };
+  // =============================================================================
+  // [EXPERIMENT 6: END] Consuming Backend RESTful Services (Node.js & Express)
+  // =============================================================================
+
+  // Step 7: Redraw List from Current Filter State
+  const filteredAssignments = assignmentsList.filter((item) => {
+    if (filter === "all") return true;
+    return item.status === filter;
+  });
+
+  // Step 9: Derived State Statistics (Total, Pending, Submitted counts)
+  const totalCount = assignmentsList.length;
+  const pendingCount = assignmentsList.filter((a) => a.status === "Pending").length;
+  const submittedCount = assignmentsList.filter((a) => a.status === "Submitted").length;
+  // =============================================================================
+  // [EXPERIMENT 4: END] In-Memory State Declarations & State Mutation Handlers
+  // =============================================================================
+
   return (
-    <div>
-      <h2 style={styles.sectionTitle}>👤 Student Profile</h2>
+    <div className="student-portal">
+      {/* Header */}
+      <header className="student-header">
+        <div>
+          <h2>🎓 Student Portal</h2>
+          <p>
+            Welcome, RVU Student &bull;{" "}
+            <span
+              style={{
+                fontSize: "0.82rem",
+                padding: "2px 8px",
+                borderRadius: "12px",
+                backgroundColor: apiStatus === "connected" ? "#e6f4ea" : "#fce8e6",
+                color: apiStatus === "connected" ? "#137333" : "#c5221f",
+                fontWeight: 600,
+              }}
+            >
+              ● REST API: {apiStatus === "connected" ? "Express (Port 5000)" : "Standalone Mode"}
+            </span>
+          </p>
+        </div>
 
-      <div style={styles.profileGrid}>
-        <ProfileField label="Name" value={PROFILE.name} />
-        <ProfileField label="Department" value={PROFILE.department} />
-        <ProfileField label="Course" value={PROFILE.course} />
-        <ProfileField label="Status" value={PROFILE.status} />
-      </div>
+        <button className="back-btn" onClick={onBackToHome}>
+          ← Back to Main Campus View
+        </button>
+      </header>
+
+      {/* Navigation Tabs (State-driven tab switching) */}
+      <nav className="portal-tabs">
+        <button
+          className={activeTab === "assignments" ? "portal-tab active-tab" : "portal-tab"}
+          onClick={() => setActiveTab("assignments")}
+        >
+          Assignments ({totalCount})
+        </button>
+
+        <button
+          className={activeTab === "notices" ? "portal-tab active-tab" : "portal-tab"}
+          onClick={() => setActiveTab("notices")}
+        >
+          Notices & Events
+        </button>
+
+        <button
+          className={activeTab === "attendance" ? "portal-tab active-tab" : "portal-tab"}
+          onClick={() => setActiveTab("attendance")}
+        >
+          Track Attendance
+        </button>
+
+        <button
+          className={activeTab === "profile" ? "portal-tab active-tab" : "portal-tab"}
+          onClick={() => setActiveTab("profile")}
+        >
+          Profile
+        </button>
+      </nav>
+
+      {/* Main Content Area */}
+      <main className="student-content">
+        {/* =================================================================== */}
+        {/* [EXPERIMENT 5: START] Component-Based Architecture & Props Passing   */}
+        {/* ------------------------------------------------------------------- */}
+        {/* Step 3: Parent component (StudentPortal) composing child components  */}
+        {/* Step 4 & 5: Passing data down to children using props                */}
+        {/* Step 7 & 8: Handling child events via callback props                 */}
+        {/* Step 10: Reusing components with different props (StatBadge, etc.)  */}
+        {/* =================================================================== */}
+
+        {/* TAB 1: ASSIGNMENTS (EXPERIMENT 5 COMPONENT COMPOSITION) */}
+        {activeTab === "assignments" && (
+          <section className="assignment-state-section">
+            <div className="section-header-row">
+              <div>
+                <h3>📝 Interactive Assignment &amp; Submission Manager</h3>
+              </div>
+
+              {/* EXPERIMENT 5: Reusable StatBadge Component with Props */}
+              <div className="state-stats-bar">
+                <StatBadge label="Total" count={totalCount} type="total" />
+                <StatBadge label="Pending" count={pendingCount} type="pending" />
+                <StatBadge label="Submitted" count={submittedCount} type="submitted" />
+              </div>
+            </div>
+
+            {/* EXPERIMENT 5: Reusable AssignmentForm Component with callback prop */}
+            <AssignmentForm onAddAssignment={handleAddAssignment} />
+
+            {/* Filter Controls (State-Driven Filtering) */}
+            <div className="assignment-filters">
+              <span className="filter-label">Filter View:</span>
+              <button
+                type="button"
+                className={`filter-btn ${filter === "all" ? "active-filter" : ""}`}
+                onClick={() => setFilter("all")}
+              >
+                All ({totalCount})
+              </button>
+              <button
+                type="button"
+                className={`filter-btn ${filter === "Pending" ? "active-filter" : ""}`}
+                onClick={() => setFilter("Pending")}
+              >
+                Pending ({pendingCount})
+              </button>
+              <button
+                type="button"
+                className={`filter-btn ${filter === "Submitted" ? "active-filter" : ""}`}
+                onClick={() => setFilter("Submitted")}
+              >
+                Submitted ({submittedCount})
+              </button>
+            </div>
+
+            {/* EXPERIMENT 5: Reusable AssignmentCard Component rendered for each item */}
+            <div className="assignment-list">
+              {filteredAssignments.length === 0 ? (
+                <p className="empty-state-msg">No assignments found for this filter.</p>
+              ) : (
+                filteredAssignments.map((assignment) => (
+                  <AssignmentCard
+                    key={assignment.id}
+                    assignment={assignment}
+                    onToggleStatus={handleToggleStatus}
+                    onDelete={handleDeleteAssignment}
+                  />
+                ))
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* =================================================================== */}
+        {/* TAB 2: NOTICES & EVENTS (EXPERIMENT 5 REUSABLE NoticeCard)          */}
+        {/* =================================================================== */}
+        {activeTab === "notices" && (
+          <section>
+            <h3>📢 Campus Notices &amp; Events</h3>
+            <div className="notice-list">
+              {notices.map((notice) => (
+                <NoticeCard
+                  key={notice.id}
+                  notice={notice}
+                  onViewDetails={(n) =>
+                    alert(
+                      `Announcement: ${n.title}\nDepartment: ${n.department}\nDate: ${n.date}`
+                    )
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* =================================================================== */}
+        {/* TAB 3: ATTENDANCE TRACKER (EXPERIMENT 5 REUSABLE AttendanceCard)    */}
+        {/* =================================================================== */}
+        {activeTab === "attendance" && (
+          <section>
+            <h3>📊 Attendance Tracker</h3>
+            <div className="attendance-grid">
+              {attendance.map((item) => (
+                <AttendanceCard
+                  key={item.id}
+                  subject={item.subject}
+                  percentage={item.percentage}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+        {/* =================================================================== */}
+        {/* [EXPERIMENT 5: END] Component-Based Architecture & Props Passing     */}
+        {/* =================================================================== */}
+
+        {/* =================================================================== */}
+        {/* TAB 4: PROFILE                                                      */}
+        {/* =================================================================== */}
+        {activeTab === "profile" && (
+          <section>
+            <h3>👤 Student Profile</h3>
+            <div className="profile-card">
+              <p>
+                <strong>Name:</strong> RVU Student
+              </p>
+              <p>
+                <strong>Student ID:</strong> RVU2026CS001
+              </p>
+              <p>
+                <strong>Program:</strong> BSc Computer Science
+              </p>
+              <p>
+                <strong>Semester:</strong> 5
+              </p>
+              <p>
+                <strong>Email:</strong> student@rvu.edu.in
+              </p>
+            </div>
+          </section>
+        )}
+      </main>
     </div>
   );
 }
 
-function ProfileField({ label, value }) {
-  return (
-    <div style={styles.profileField}>
-      <div style={styles.profileLabel}>{label}</div>
-      <div style={styles.profileValue}>{value}</div>
-    </div>
-  );
-}
-
-const styles = {
-  wrapper: {
-    maxWidth: '850px',
-    margin: '30px auto',
-    fontFamily: 'Arial, sans-serif',
-    borderRadius: '10px',
-    overflow: 'hidden',
-    boxShadow: '0 6px 18px rgba(0,0,0,0.12)'
-  },
-  header: {
-    backgroundColor: NAVY,
-    padding: '18px 24px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '10px'
-  },
-  headerTitle: {
-    color: GOLD,
-    margin: 0,
-    fontSize: '22px',
-    letterSpacing: '0.5px'
-  },
-  headerSubtitle: {
-    color: '#ffffff',
-    margin: '4px 0 0 0',
-    fontSize: '13px',
-    opacity: 0.85
-  },
-  backBtn: {
-    backgroundColor: GOLD,
-    color: NAVY,
-    border: 'none',
-    borderRadius: '4px',
-    padding: '10px 16px',
-    fontWeight: 700,
-    fontSize: '13px',
-    cursor: 'pointer'
-  },
-  tabRow: {
-    display: 'flex',
-    backgroundColor: '#e9edf2',
-    overflowX: 'auto'
-  },
-  tabBtn: {
-    flex: 1,
-    minWidth: '140px',
-    padding: '14px 10px',
-    border: 'none',
-    backgroundColor: 'transparent',
-    color: '#334155',
-    fontWeight: 600,
-    fontSize: '14px',
-    cursor: 'pointer',
-    borderBottom: '3px solid transparent'
-  },
-  tabBtnActive: {
-    backgroundColor: '#ffffff',
-    color: NAVY,
-    borderBottom: `3px solid ${GOLD}`
-  },
-  content: {
-    backgroundColor: '#ffffff',
-    padding: '24px'
-  },
-  sectionTitle: {
-    color: NAVY,
-    fontSize: '17px',
-    marginBottom: '18px'
-  },
-  row: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 0',
-    borderBottom: '1px solid #eef1f5',
-    gap: '12px'
-  },
-  rowTitle: {
-    fontWeight: 700,
-    color: '#1f2937',
-    fontSize: '14.5px'
-  },
-  rowMeta: {
-    fontSize: '12.5px',
-    color: '#64748b',
-    marginTop: '4px'
-  },
-  darkBtn: {
-    backgroundColor: NAVY,
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '4px',
-    padding: '9px 16px',
-    fontSize: '12.5px',
-    fontWeight: 600,
-    cursor: 'pointer',
-    whiteSpace: 'nowrap'
-  },
-  badge: {
-    padding: '7px 14px',
-    borderRadius: '4px',
-    fontSize: '12.5px',
-    fontWeight: 700,
-    whiteSpace: 'nowrap'
-  },
-  attendanceRow: {
-    padding: '14px 0',
-    borderBottom: '1px solid #eef1f5'
-  },
-  attendanceHead: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '8px'
-  },
-  progressTrack: {
-    height: '8px',
-    borderRadius: '4px',
-    backgroundColor: '#e2e8f0',
-    overflow: 'hidden'
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: '4px'
-  },
-  profileGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: '18px'
-  },
-  profileField: {
-    backgroundColor: BG,
-    borderRadius: '6px',
-    padding: '14px 16px',
-    borderLeft: `4px solid ${GOLD}`
-  },
-  profileLabel: {
-    fontSize: '11.5px',
-    color: '#64748b',
-    fontWeight: 700,
-    textTransform: 'uppercase',
-    letterSpacing: '0.4px',
-    marginBottom: '4px'
-  },
-  profileValue: {
-    fontSize: '14px',
-    color: NAVY,
-    fontWeight: 600
-  }
-};
+/* ============================================================================= */
+/* [EXPERIMENT 4 & 5: END] Modular Frontend Application & State Architecture     */
+/* ============================================================================= */

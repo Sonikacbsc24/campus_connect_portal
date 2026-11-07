@@ -4,131 +4,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Profile</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Campus Connect Portal | Home</title>
+
+    <link rel="stylesheet" href="./src/style.css">
 </head>
 
 <body>
 
-    <header>
-        <h1>My Personal Profile</h1>
-        <p>A responsive page built with HTML5 and CSS3</p>
+    <!-- Top Navigation Header -->
+    <header class="navbar">
+
+        <div class="logo-group">
+
+            <div class="brand-badge">
+                RV
+            </div>
+
+            <div>
+                <span class="university-name">
+                    RV UNIVERSITY<sup>®</sup>
+                </span>
+
+                <p class="sub-dept">
+                    School of Computer Science & Engineering
+                </p>
+            </div>
+
+        </div>
+
+        <div class="nav-actions">
+            <a href="/login" class="btn-secondary">
+                Login
+            </a>
+
+            <a href="/register" class="btn-primary">
+                Register
+            </a>
+        </div>
+
     </header>
 
-    <nav>
-        <a href="#about">About</a>
-        <a href="#skills">Skills</a>
-        <a href="#hobbies">Hobbies</a>
-        <a href="#contact">Contact</a>
-    </nav>
 
-    <main>
+    <!-- Hero Banner -->
+    <section class="hero-banner">
 
-        <section id="about">
-            <h2>About Me</h2>
+        <div class="hero-content">
 
-            <div class="about-content">
-                <img src="https://as1.ftcdn.net/v2/jpg/09/37/60/02/500_F_937600227_RlGrfMocC7StqnaR1CZPb4Bs2xjKfy4c.jpg" alt="Profile picture of Keerthana">
+            <span class="module-tag">
+                CS3301 - FULL STACK DEVELOPMENT
+            </span>
 
-                <div>
-                    <h3>Hello! I am Lola</h3>
-                    <p>
-                        I am a Computer Science student with a keen
-                        interest in web development, programming, and
-                        data science. I like exploring new tools and
-                        building clean, responsive websites in my
-                        free time.
-                    </p>
+            <h1>
+                CAMPUS CONNECT PORTAL
+            </h1>
+
+            <p class="subtitle">
+                Connecting Students, Faculty, and Administrators on a Single Digital Platform.
+            </p>
+
+            <div class="hero-cta-group">
+                <a href="#roles" class="btn-hero-primary">
+                    Explore User Portals ➔
+                </a>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Campus Life & Portal Highlights -->
+    <section class="section-container">
+
+        <h2 class="section-title">
+            Campus Life & Portal Highlights
+        </h2>
+
+        <p class="section-subtitle">
+            Experience academic management simplified through modern technology.
+        </p>
+
+
+        <div class="carousel-wrapper">
+
+            <button
+                class="carousel-btn prev-btn"
+                id="prevBtn"
+                aria-label="Previous slide">
+                &#10094;
+            </button>
+
+
+            <div class="carousel-track-container">
+
+                <div class="carousel-track" id="carouselTrack">
+
+                    <!-- Slide 1 -->
+                    <div class="slide active-slide">
+
+                        <img
+                            src="https://d2b6aloc836m7p.cloudfront.net/wp-content/uploads/2025/10/Reflection.jpg"
+                            alt="University Campus">
+
+                        <div class="slide-caption">
+                            Modern University Infrastructure
+                        </div>
+
+                    </div>
+
+
+                    <!-- Slide 2 -->
+                    <div class="slide">
+
+                        <img
+                            src="https://d2b6aloc836m7p.cloudfront.net/wp-content/uploads/2025/10/Reflection.jpg"
+                            alt="Student Collaboration">
+
+                        <div class="slide-caption">
+                            Collaborative Learning & Hackathons
+                        </div>
+
+                    </div>
+
+
+                    <!-- Slide 3 -->
+                    <div class="slide">
+
+                        <img
+                            src="https://d2b6aloc836m7p.cloudfront.net/wp-content/uploads/2025/10/Reflection.jpg"
+                            alt="Digital Dashboard">
+
+                        <div class="slide-caption">
+                            Real-Time Academic Management
+                        </div>
+
+                    </div>
+
                 </div>
-            </div>
-        </section>
-
-        <section id="skills">
-            <h2>My Skills</h2>
-
-            <div class="card-container">
-
-                <article class="card">
-                    <h3>HTML5</h3>
-                    <p>
-                        Used to structure webpages with meaningful,
-                        semantic elements.
-                    </p>
-                </article>
-
-                <article class="card">
-                    <h3>CSS3</h3>
-                    <p>
-                        Used to style webpages with colours, fonts,
-                        spacing, and layout.
-                    </p>
-                </article>
-
-                <article class="card">
-                    <h3>JavaScript</h3>
-                    <p>
-                        Used to add interactivity and dynamic
-                        behaviour to websites.
-                    </p>
-                </article>
-
-                <article class="card">
-                    <h3>Python</h3>
-                    <p>
-                        Used for problem solving, automation, and
-                        working with data.
-                    </p>
-                </article>
 
             </div>
-        </section>
 
-        <section id="hobbies">
-            <h2>My Hobbies</h2>
 
-            <div class="card-container">
+            <button
+                class="carousel-btn next-btn"
+                id="nextBtn"
+                aria-label="Next slide">
+                &#10095;
+            </button>
 
-                <article class="card">
-                    <h3>Reading</h3>
-                    <p>
-                        I enjoy reading books and learning new things.
-                    </p>
-                </article>
+        </div>
 
-                <article class="card">
-                    <h3>Music</h3>
-                    <p>
-                        I like listening to music during my free time.
-                    </p>
-                </article>
 
-                <article class="card">
-                    <h3>Programming</h3>
-                    <p>
-                        I enjoy building small projects and solving
-                        coding problems.
-                    </p>
-                </article>
+        <!-- Slide Indicators -->
+        <div class="carousel-dots" id="carouselDots">
 
-            </div>
-        </section>
+            <span
+                class="dot active-dot"
+                data-index="0">
+            </span>
 
-        <section id="contact">
-            <h2>Contact Me</h2>
-            <p>
-                Feel free to reach out for collaborations or just to say hello.
-            </p>
-            <p>
-                <a href="mailto:Lola24@example.com" class="contact-link">Lola24@example.com</a>
-            </p>
-        </section>
+            <span
+                class="dot"
+                data-index="1">
+            </span>
 
-    </main>
+            <span
+                class="dot"
+                data-index="2">
+            </span>
 
-    <footer>
-        <p>&copy; 2026 My Personal Profile</p>
+        </div>
+
+    </section>
+
+
+    <!-- User Role Section -->
+    <section id="roles" class="section-container bg-light">
+
+        <h2 class="section-title">
+            Choose Your Portal View
+        </h2>
+
+
+        <div class="roles-grid">
+
+
+            <!-- Student Card -->
+            <article class="role-card student-border">
+
+                <div class="role-icon">
+                    👨‍🎓
+                </div>
+
+                <h3>
+                    Student Portal
+                </h3>
+
+                <ul class="feature-bullets">
+
+                    <li>• View Notices & Events</li>
+                    <li>• Submit Assignments</li>
+                    <li>• Track Attendance</li>
+                    <li>• Update Profile</li>
+
+                </ul>
+
+                
+
+                <button class="btn-portal student-bg" onclick="window.location.href='/student'">
+                    Access Student View
+                </button>
+
+            </article>
+
+
+            <!-- Faculty Card -->
+            <article class="role-card faculty-border">
+
+                <div class="role-icon">
+                    👨‍🏫
+                </div>
+
+                <h3>
+                    Faculty Portal
+                </h3>
+
+                <ul class="feature-bullets">
+
+                    <li>• Post Notices & Events</li>
+                    <li>• Create Assignments</li>
+                    <li>• Mark Attendance</li>
+                    <li>• View Submissions</li>
+
+                </ul>
+
+                <button class="btn-portal faculty-bg" onclick="window.location.href='login.html'">
+                    Access Faculty View
+                </button>
+
+            </article>
+
+
+            <!-- Admin Card -->
+            <article class="role-card admin-border">
+
+                <div class="role-icon">
+                    🛡️
+                </div>
+
+                <h3>
+                    Admin Portal
+                </h3>
+
+                <ul class="feature-bullets">
+
+                    <li>• Manage Users</li>
+                    <li>• Manage Notices & Events</li>
+                    <li>• View System Reports</li>
+                    <li>• System Settings</li>
+
+                </ul>
+
+                <button class="btn-portal admin-bg" onclick="window.location.href='login.html'">
+                    Access Admin View
+                </button>
+
+            </article>
+
+
+        </div>
+
+    <!-- React App Root Container (AuthModule & StudentPortal) -->
+    <section id="auth" style="padding: 20px 0;">
+        <div id="auth-root"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 RV University - School of Computer Science & Engineering. All Rights Reserved.</p>
+        <p>Campus Connect Portal | Full Stack Development Lab</p>
     </footer>
 
-</body>
+    <script type="module" src="./src/main.jsx"></script>
+    <script>
+        // Carousel Functionality
+        const track = document.getElementById('carouselTrack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const dots = document.querySelectorAll('.dot');
+        let currentSlide = 0;
+        const totalSlides = document.querySelectorAll('.slide').length;
 
+        function updateCarousel(index) {
+            currentSlide = (index + totalSlides) % totalSlides;
+            if (track) {
+                track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }
+            dots.forEach((dot, idx) => {
+                dot.classList.toggle('active-dot', idx === currentSlide);
+            });
+        }
+
+        if (prevBtn) prevBtn.addEventListener('click', () => updateCarousel(currentSlide - 1));
+        if (nextBtn) nextBtn.addEventListener('click', () => updateCarousel(currentSlide + 1));
+        dots.forEach((dot, idx) => {
+            dot.addEventListener('click', () => updateCarousel(idx));
+        });
+    </script>
+</body>
 </html>

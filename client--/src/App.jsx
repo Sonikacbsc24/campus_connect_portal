@@ -1,48 +1,25 @@
-import { useEffect, useState } from 'react';
-import AuthModule from './components/AuthModule';
+
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import AuthModule from './components/AuthModule.jsx';
+import StudentPortal from './components/StudentPortal.jsx';
 
 export default function App() {
-  const [activeMode, setActiveMode] = useState('login');
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-
-      if (hash === '#login') {
-        setActiveMode('login');
-        scrolltoAuth();
-      }
-      else if (hash === '#register') {
-        setActiveMode('register');
-        scrolltoAuth();
-      }
-    };
-
-    const scrolltoAuth = () => {
-      const authElem = document.getElementById('auth-section');
-      if (authElem) {
-        authElem.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-    // Check the current hash when the page loads
-    handleHashChange();
-
-    // Listen for Login/Register navigation
-    window.addEventListener('hashchange', handleHashChange);
-
-    // Cleanup event listener
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-    };
-  }, []);
+  const navigate = useNavigate();
 
   return (
-    <div style={{ padding: '20px 0'}}>
-      <AuthModule
-        initialMode={activeMode}
-        onModeChange={setActiveMode}
-      />
+    <div style={{ padding: '20px 0' }}>
+      <Routes>
+        {/* Auth Route */}
+        <Route path="/" element={<AuthModule initialMode="login" />} />
+        <Route path="/login" element={<AuthModule initialMode="login" />} />
+        <Route path="/register" element={<AuthModule initialMode="register" />} />
+
+        {/* Student Portal Parent Route */}
+        <Route 
+          path="/student/*" 
+          element={<StudentPortal onBackToHome={() => navigate('/')} />} 
+        />
+      </Routes>
     </div>
   );
 }
-
